@@ -15,7 +15,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        // Devuelve un error 401 Unauthorized y un mensaje claro al cliente
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: No autorizado. Token inválido o faltante.");
     }
 }

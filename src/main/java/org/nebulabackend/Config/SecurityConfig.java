@@ -42,32 +42,26 @@ public class SecurityConfig {
         return new AuthTokenFilter();
     }
 
-    // Define el proveedor de autenticación con inyección moderna
     public DaoAuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        // ¡ESTA LÍNEA ES CRÍTICA!
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
-    // Gestiona el AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // Define el algoritmo de encriptación
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configuración CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // ¡IMPORTANTE! Basado en tu log, usamos el puerto 3001 (o cámbialo a 3000 si es el correcto)
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
@@ -77,30 +71,22 @@ public class SecurityConfig {
         return source;
     }
 
-    // Define las reglas de seguridad de las peticiones HTTP
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                // Habilita y usa el CorsConfigurationSource bean (necesario para el OPTIONS)
                 .cors(Customizer.withDefaults())
 
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        // Permite OPTIONS para el CORS Preflight
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                // Rutas de login/signup abiertas (soluciona el 403 inicial)
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/productos/**").permitAll()
                                 .requestMatchers("/api/categorias/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
-        // Ya no se requiere llamar a http.authenticationProvider() aquí.
-
-        // Añade el filtro JWT (AuthTokenFilter) antes del filtro de autenticación de usuario/contraseña
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }

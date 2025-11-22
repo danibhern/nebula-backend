@@ -32,7 +32,6 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    // Método estático para construir UserDetailsImpl a partir de tu entidad User
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
@@ -50,9 +49,7 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-    // ... Getters (id, email) y métodos de Spring Security (isAccountNonExpired, etc.)
 
-    // --- Métodos de Lombok/Spring Security ---
     public Long getId() { return id; }
     public String getEmail() { return email; }
     @Override public String getPassword() { return password; }

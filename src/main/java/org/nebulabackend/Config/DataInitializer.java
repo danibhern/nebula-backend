@@ -28,24 +28,14 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        /* 🚨 CÓDIGO TEMPORAL DE DEPURACIÓN COMENTADO 🚨
-           Ya obtuviste el hash. Comentamos esta línea para limpiar la consola.
-        String cleanHash = encoder.encode("admin123");
-        System.out.println("------------------------------------");
-        System.out.println("👉 HASH GENERADO PARA ADMIN123: " + cleanHash);
-        System.out.println("------------------------------------");
-        */
-
         System.out.println("--- Inicializando Roles y Usuario Admin ---");
 
-        // 1. CREACIÓN DE ROLES BASE
         insertRoleIfNotFound("ROLE_ADMIN");
         insertRoleIfNotFound("ROLE_USER");
         insertRoleIfNotFound("ROLE_MODERATOR");
 
         // 2. CREACIÓN DEL USUARIO ADMINISTRADOR POR DEFECTO
-        /* 🚫 BLOQUE DE CREACIÓN DE USUARIO COMENTADO 🚫
-           Desactivamos la creación para que no interfiera con el hash que insertaste manualmente en la DB.
+        /*  Desactivar la creación para que no interfiera con el hash en la DB.
         if (userRepository.findByUsername("admin").isEmpty()) {
 
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")

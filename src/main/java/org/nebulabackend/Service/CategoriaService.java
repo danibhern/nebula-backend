@@ -79,7 +79,7 @@ public class CategoriaService {
         long productosAsociados = productoRepository.countByCategoriaId(id);
 
         if (productosAsociados > 0) {
-            throw new IllegalStateException("No se puede eliminar la categoría porque tiene " + productosAsociados + " productos asociados.");
+            return false;
         }
 
         categoriaRepository.deleteById(id);

@@ -1,47 +1,35 @@
-package org.nebulabackend.Model;
+package org.nebulabackend.Dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "reservas")
-public class Reserva {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
+public class ReservaDto {
+    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
-    @Column(nullable = false)
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "El formato no es válido")
     private String email;
 
-    @Column(nullable = false)
-    private String telefono;  // ✅ NUEVO CAMPO
+    @NotBlank(message = "El teléfono es obligatorio")
+    private String telefono;
 
-    @Column(nullable = false)
+    @NotNull(message = "La fecha es obligatoria")
     private LocalDate fecha;
 
-    @Column(nullable = false)
+    @NotNull(message = "La hora es obligatoria")
     private LocalTime hora;
 
-    @Column(nullable = false)
+    @Min(value = 1, message = "Debe haber al menos 1 persona")
     private int numPersonas;
 
-    // ✅ CONSTRUCTOR VACÍO
-    public Reserva() {}
-
     // ✅ GETTERS Y SETTERS COMPLETOS
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getNombre() {
         return nombre;
     }

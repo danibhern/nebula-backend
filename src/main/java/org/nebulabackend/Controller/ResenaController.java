@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/resenas")
+@CrossOrigin(origins = "*")
 public class ResenaController {
 
     @Autowired

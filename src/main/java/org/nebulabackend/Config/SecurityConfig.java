@@ -22,11 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
@@ -63,7 +60,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",          // Tu frontend local
+                "http://127.0.0.1:3000",         // Alternativa localhost
+                "http://3.238.230.134"         // IP de tu servidor backend
+               // "http://3.238.230.134:3000"      // Por si tienes frontend en el servidor
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -76,11 +78,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                // AGREGA ESTA LÍNEA PARA H2 CONSOLE
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
 
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/").permitAll()
+                                .requestMatchers("/index.html").permitAll()
+                                .requestMatchers("/error").permitAll()
+                                // AGREGA ESTA LÍNEA PARA H2 CONSOLE
+                                .requestMatchers("/h2-console/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/productos/**").permitAll()
@@ -90,7 +99,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/resenas/**").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().authenticated()  // ← Mantén esta línea
                 );
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

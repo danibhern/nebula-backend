@@ -87,6 +87,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/reservas/**").permitAll()
                                 .requestMatchers("/api/contactos/**").permitAll()
                                 .requestMatchers("/api/resenas/**").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 

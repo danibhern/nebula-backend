@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/resesva")
+@RequestMapping("/api/reservas")
 public class ReservaController {
 
     @Autowired
@@ -36,11 +36,6 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<List<Reserva>> obtenerReservasPorEmail(@PathVariable String email) {
-        List<Reserva> reservas = reservaService.obtenerReservaporEmail(email);
-        return ResponseEntity.ok(reservas);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarReserva(@PathVariable Long id,@Valid @RequestBody ReservaDto reservaDto) {

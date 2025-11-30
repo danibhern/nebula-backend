@@ -85,6 +85,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/categorias/**").permitAll()
                                 .requestMatchers("/api/reservas/**").permitAll()
                                 .requestMatchers("/api/contactos/**").permitAll()
+                                .requestMatchers("/api/resenas/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 

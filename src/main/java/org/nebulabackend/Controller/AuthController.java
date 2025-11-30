@@ -1,7 +1,13 @@
 package org.nebulabackend.Controller;
 
 import org.nebulabackend.Dto.LoginRequest;
-import org.nebulabackend.Dto.JwtResponse; // ¡CORREGIDO!
+import org.nebulabackend.Dto.RegisterRequest;
+import org.nebulabackend.Dto.MessageResponse;
+import org.nebulabackend.Dto.JwtResponse;
+import org.nebulabackend.Model.User;
+import org.nebulabackend.Model.Role;
+import org.nebulabackend.Repository.UserRepository;
+import org.nebulabackend.Repository.RoleRepository;
 import org.nebulabackend.Security.Jwt.JwtUtils;
 import org.nebulabackend.Security.Services.UserDetailsImpl;
 
@@ -11,9 +17,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
@@ -27,31 +36,68 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
-        // 1. Llama al DaoAuthenticationProvider para verificar las credenciales
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        // 2. Establece la autenticación en el contexto de seguridad (sesión)
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 3. Genera el Token JWT
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // 4. Obtiene detalles del usuario autenticado
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        // 5. Devuelve la respuesta al frontend con el token y detalles
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles));
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest signUpRequest) {
+
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // Create new user's account with encrypted password
+        User user = new User();
+        user.setUsername(signUpRequest.getUsername());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
+        // Assign default role ROLE_USER
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_USER not found."));
+        Set<Role> roles = new HashSet<>();
+        roles.add(userRole);
+        user.setRoles(roles);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 }

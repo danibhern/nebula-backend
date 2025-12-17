@@ -63,7 +63,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",          // Tu frontend local
                 "http://127.0.0.1:3000",         // Alternativa localhost
-                "http://3.238.230.134"         // IP de tu servidor backend
+                "http://98.93.180.16:9080"         // IP de tu servidor backend
                // "http://3.238.230.134:3000"      // Por si tienes frontend en el servidor
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
